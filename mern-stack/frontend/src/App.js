@@ -8,17 +8,17 @@ function App() {
   return (
     <div className="App">
       <Router>
-        <Navbar/>
+        <Navbar />
         <div className="pages">
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-        </Routes>
-        <Routes>
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
+          <Routes>
+            <Route path="/" element={<Home />} />
+          </Routes>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+          </Routes>
+          <Routes>
+            <Route path="/signup" element={<Signup />} />
+          </Routes>
         </div>
       </Router>
     </div>
