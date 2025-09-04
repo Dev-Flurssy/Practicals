@@ -1,37 +1,40 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
-import validator from 'validator';
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import validator from "validator";
 
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true
+const userSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+    },
   },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6
-  }
-});
+  { timestamps: true }
+);
 
 // static signup
 userSchema.statics.signup = async function (email, password) {
   if (!email || !password) {
-    throw Error('All fields must be filled');
+    throw Error("All fields must be filled");
   }
   if (!validator.isEmail(email)) {
-    throw Error('Email is not valid');
+    throw Error("Email is not valid");
   }
   if (!validator.isStrongPassword(password)) {
-    throw Error('Password is not strong enough');
+    throw Error("Password is not strong enough");
   }
 
   const exists = await this.findOne({ email });
   if (exists) {
-    throw Error('Email already exists');
+    throw Error("Email already exists");
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -44,20 +47,20 @@ userSchema.statics.signup = async function (email, password) {
 // static login
 userSchema.statics.login = async function (email, password) {
   if (!email || !password) {
-    throw Error('All fields must be filled');
+    throw Error("All fields must be filled");
   }
 
   const user = await this.findOne({ email });
   if (!user) {
-    throw Error('Incorrect email');
+    throw Error("Incorrect email");
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    throw Error('Incorrect password');
+    throw Error("Incorrect password");
   }
 
   return user;
 };
 
-export default mongoose.model('User', userSchema);
+export default mongoose.model("User", userSchema);

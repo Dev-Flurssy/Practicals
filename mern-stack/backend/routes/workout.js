@@ -1,18 +1,26 @@
-import express from 'express';
-import Workout from '../model/workout.model.js';
-import {createWorkout, getAllWorkouts, getWorkout, deleteWorkout, updateWorkout} from '../controllers/workout.controller.js';
-
+import express from "express";
+import Workout from "../model/workout.model.js";
+import {
+  createWorkout,
+  getAllWorkouts,
+  getWorkout,
+  deleteWorkout,
+  updateWorkout,
+} from "../controllers/workout.controller.js";
+import { requireAuth } from "../middleware/requireAuth.js";
 
 const router = express.Router();
 
-router.get('/', getAllWorkouts) 
+router.use(requireAuth);
 
-router.get('/:id', getWorkout)
+router.get("/", getAllWorkouts);
 
-router.post('/', createWorkout) 
+router.get("/:id", getWorkout);
 
-router.delete('/:id', deleteWorkout)
+router.post("/", createWorkout);
 
-router.patch('/:id', updateWorkout)
+router.delete("/:id", deleteWorkout);
+
+router.patch("/:id", updateWorkout);
 
 export default router;

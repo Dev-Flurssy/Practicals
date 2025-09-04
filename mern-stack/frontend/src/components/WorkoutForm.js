@@ -1,40 +1,56 @@
 import { useState } from "react";
 import { useWorkoutContext } from "../hooks/useWorkoutContext";
+import { useAuthContext } from "../hooks/useAuthContext.js";
 
 const WorkoutForm = () => {
   const { dispatch } = useWorkoutContext();
+  const { user } = useAuthContext();
 
   const [title, setTitle] = useState("");
   const [load, setLoad] = useState("");
   const [reps, setReps] = useState("");
   const [error, setError] = useState(null);
   const [emptyFields, setEmptyFields] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const workout = { title, load: Number(load), reps: Number(reps) };
-
-    const response = await fetch("/api/workouts", {
-      method: "POST",
-      body: JSON.stringify(workout),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const json = await response.json();
-
-    if (!response.ok) {
-      setError(json.error);
-      setEmptyFields(json.emptyFields || []);
+    if (!user) {
+      setError("You must be logged in");
+      return;
     }
 
-    if (response.ok) {
-      setTitle("");
-      setLoad("");
-      setReps("");
-      setError(null);
-      setEmptyFields([]);
-      dispatch({ type: "CREATE_WORKOUT", payload: json });
+    const workout = { title, load: Number(load), reps: Number(reps) };
+
+    try {
+      setIsSubmitting(true);
+      const response = await fetch("/api/workouts", {
+        method: "POST",
+        body: JSON.stringify(workout),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      const json = await response.json();
+
+      if (!response.ok) {
+        setError(json.error || "Something went wrong");
+        setEmptyFields(json.emptyFields || []);
+      } else {
+        setTitle("");
+        setLoad("");
+        setReps("");
+        setError(null);
+        setEmptyFields([]);
+        dispatch({ type: "CREATE_WORKOUT", payload: json });
+      }
+    } catch (err) {
+      setError("Failed to connect to server");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -66,7 +82,9 @@ const WorkoutForm = () => {
         value={reps}
       />
 
-      <button>Add Workout</button>
+      <button disabled={isSubmitting}>
+        {isSubmitting ? "Adding..." : "Add Workout"}
+      </button>
 
       {error && <div className="error">{error}</div>}
     </form>

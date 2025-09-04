@@ -2,19 +2,27 @@ import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
-const workoutSchema = new Schema({
-    title:{
-        type: String,
-        required: true
+const workoutSchema = new Schema(
+  {
+    title: {
+      type: String,
+      required: true,
     },
-    Load:{
-        type: Number,
-        required: true
+    load: {
+      type: Number,
+      required: true,
     },
-    Reps:{
-        type: Number,
-        required: true
-    }
-},{timestamps:true})
+    reps: {
+      type: Number,
+      required: true,
+    },
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
-export default mongoose.model('Workout', workoutSchema);
+export default mongoose.model("Workout", workoutSchema);

@@ -1,17 +1,35 @@
 import { useWorkoutContext } from "../hooks/useWorkoutContext.js";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
+import { useAuthContext } from "../hooks/useAuthContext.js";
 
 const TempDetails = ({ workout }) => {
   const { dispatch } = useWorkoutContext();
+  const { user } = useAuthContext();
 
   const handleDelete = async () => {
-    const response = await fetch("/api/workouts/" + workout._id, {
-      method: "DELETE",
-    });
-    const json = await response.json();
+    if (!user) {
+      alert("You must be logged in to delete a workout.");
+      return;
+    }
 
-    if (response.ok) {
-      dispatch({ type: "DELETE_WORKOUT", payload: json });
+    try {
+      const response = await fetch("/api/workouts/" + workout._id, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      const json = await response.json();
+
+      if (response.ok) {
+        dispatch({ type: "DELETE_WORKOUT", payload: json });
+      } else {
+        alert(json.error || "Failed to delete workout.");
+      }
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Network error. Please try again.");
     }
   };
 
@@ -34,6 +52,7 @@ const TempDetails = ({ workout }) => {
         className="material-symbols-outlined"
         onClick={handleDelete}
         style={{ cursor: "pointer", color: "red" }}
+        title="Delete workout"
       >
         delete
       </span>
